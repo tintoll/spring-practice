@@ -3,22 +3,41 @@ package or.kr.connect;
 import javax.sql.DataSource;
 
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
 
 
 @Configuration
 @ComponentScan
+@PropertySource("application.properties")
 public class AppConfig {
+	@Value("${spring.datasource.url}")
+	private String url;
+	@Value("${spring.datasource.driver-class-name}")
+	private String driverClassName;
+	@Value("${spring.datasource.username}")
+	private String username;
+	@Value("${spring.datasource.password}")
+	private String password;
 	
 	@Bean
 	public DataSource dataSource() {
 		BasicDataSource dataSource = new BasicDataSource();
-		dataSource.setDriverClassName("org.h2.Driver");
-		dataSource.setUrl("jdbc:h2:~/javaweb/db;AUTO_SERVER=TRUE;DB_CLOSE_ON_EXIT=FALSE;");
-		dataSource.setUsername("sa");
-		dataSource.setPassword("sa");
+		dataSource.setDriverClassName(driverClassName);
+		dataSource.setUrl(url);
+		dataSource.setUsername(username);
+		dataSource.setPassword(password);
 		return dataSource;
+	}
+	
+	// PlatformTransactionManager는 Spring에서 트랜잭션의 시작과 종료, 취소를 할 때 사용하는 인터페이스이다. 
+	@Bean
+	public PlatformTransactionManager transactionManager() {
+		return new DataSourceTransactionManager(dataSource());
 	}
 }
